@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FileX, Download } from "lucide-react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { Link } from "react-router-dom";
 
 interface Task {
   id: number;
@@ -88,14 +89,24 @@ const Index = () => {
               A simple place to organize your tasks.
             </p>
           </div>
-          <Button
-            variant="outline"
-            className="ml-2"
-            onClick={exportToExcel}
-            aria-label="Download all tasks"
-          >
-            <FileX className="mr-2" /> <Download className="mr-1" /> Export
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="text-xs"
+            >
+              <Link to="/sparkles">View Theme</Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="ml-2"
+              onClick={exportToExcel}
+              aria-label="Download all tasks"
+            >
+              <FileX className="mr-2" /> <Download className="mr-1" /> Export
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="tasks" className="w-full">
