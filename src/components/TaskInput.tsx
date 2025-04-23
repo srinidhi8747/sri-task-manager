@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,17 +19,21 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TaskInputProps {
   onAdd: (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => void;
+  isCompleted: boolean;
 }
 
-const TaskInput = ({ onAdd }: TaskInputProps) => {
+const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [priority, setPriority] = useState<Priority>("medium");
   const isMobile = useIsMobile();
+
+  if (isCompleted) return null;
 
   const handleAdd = () => {
     if (title.trim() === "") return;
@@ -46,22 +49,15 @@ const TaskInput = ({ onAdd }: TaskInputProps) => {
     setPriority("medium");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleAdd();
-    }
-  };
-
   return (
     <div className="flex flex-col gap-3 mb-6">
-      <Input
+      <Textarea
         placeholder="Add a new task..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="flex-1 bg-white shadow"
-        maxLength={80}
-        aria-label="Task title"
+        className="flex-1 bg-white shadow min-h-[100px]"
+        maxLength={500}
+        aria-label="Task title and description"
       />
       
       <div className="flex flex-wrap gap-2">

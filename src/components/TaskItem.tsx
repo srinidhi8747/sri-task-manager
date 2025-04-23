@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Task } from "@/types/task";
@@ -22,6 +21,18 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
   const [editVal, setEditVal] = useState(task.title);
   const isMobile = useIsMobile();
 
+  const priorityColors = {
+    low: "bg-blue-100 text-blue-800 hover:bg-blue-100",
+    medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+    high: "bg-red-100 text-red-800 hover:bg-red-100"
+  };
+
+  const priorityLabels = {
+    low: "Low",
+    medium: "Medium",
+    high: "High"
+  };
+
   const handleSave = () => {
     if (editVal.trim() && editVal !== task.title) {
       onEdit(task.id, editVal.trim());
@@ -37,12 +48,6 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
     }
   };
 
-  const priorityColors = {
-    low: "bg-blue-100 text-blue-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-red-100 text-red-800"
-  };
-
   return (
     <div className={cn(
       "flex flex-col bg-white rounded-lg mb-2 px-4 py-3 shadow transition-all group border border-gray-200",
@@ -53,7 +58,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         
         <div className="flex-1">
           {isEditing ? (
-            <Input
+            <Textarea
               value={editVal}
               onChange={e => setEditVal(e.target.value)}
               onBlur={handleSave}
@@ -63,23 +68,18 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               disabled={isCompleted}
             />
           ) : (
-            <div className={cn("font-medium", isCompleted && "text-gray-500")}>
+            <div className={cn("font-medium whitespace-pre-wrap", isCompleted && "text-gray-500")}>
               {task.title}
             </div>
           )}
         </div>
         
         <Badge className={priorityColors[task.priority]}>
-          {task.priority}
+          {priorityLabels[task.priority]}
         </Badge>
 
-        {!isCompleted && (
+        {!isCompleted ? (
           <>
-            {!isEditing && (
-              <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} aria-label="Edit task">
-                <Pencil size={18} />
-              </Button>
-            )}
             <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
               Mark as completed
             </Button>
@@ -87,9 +87,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               <Trash2 size={18} className="text-red-500" />
             </Button>
           </>
-        )}
-        
-        {isCompleted && (
+        ) : (
           <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
             Mark as pending
           </Button>

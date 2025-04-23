@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
@@ -10,12 +9,34 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { Task, Priority } from "@/types/task";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+const ITEMS_PER_PAGE = 10;
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
-  // Load tasks from localStorage on mount
   useEffect(() => {
     const savedTasks = localStorage.getItem("tasks");
     if (savedTasks) {
@@ -23,7 +44,6 @@ const Index = () => {
     }
   }, []);
 
-  // Save tasks to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
@@ -39,7 +59,7 @@ const Index = () => {
         endDate: endDate ? endDate.toISOString() : null,
         completed: false,
         createdAt: new Date().toISOString(),
-        createdBy: "Current User", // In a real app, this would come from auth
+        createdBy: "Current User",
         priority: priority,
         completedAt: null
       };
@@ -93,11 +113,29 @@ const Index = () => {
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
 
+  const totalPages = Math.ceil(tasks.length / ITEMS_PER_PAGE);
+  const currentTasks = tasks.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   const exportToExcel = async () => {
+    if (pendingTasks.length === 0 && completedTasks.length === 0) {
+      toast({
+        title: "No tasks to export",
+        description: "There are no tasks available to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const workbook = new ExcelJS.Workbook();
     
     const addSheet = (tasksToExport: Task[], name: string) => {
       const sheet = workbook.addWorksheet(name);
+      sheet.protection.password = 'password123';
+      sheet.protection.sheet = true;
+      
       sheet.columns = [
         { header: "Title", key: "title", width: 40 },
         { header: "Priority", key: "priority", width: 15 },
@@ -131,8 +169,12 @@ const Index = () => {
       });
     };
     
-    addSheet(pendingTasks, "Pending Tasks");
-    addSheet(completedTasks, "Completed Tasks");
+    if (pendingTasks.length > 0) {
+      addSheet(pendingTasks, "Pending Tasks");
+    }
+    if (completedTasks.length > 0) {
+      addSheet(completedTasks, "Completed Tasks");
+    }
 
     const buf = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buf]), "tasks.xlsx");
@@ -153,26 +195,31 @@ const Index = () => {
           </div>
           
           <Button
-            variant="outline"
+            variant="default"
             onClick={exportToExcel}
-            aria-label="Download all tasks"
+            aria-label="Export tasks"
             size={isMobile ? "sm" : "default"}
+            className="bg-primary hover:bg-primary/90"
           >
-            <FileX className="h-4 w-4 mr-2" /> <Download className="h-4 w-4 mr-1" /> Export
+            <FileX className="h-4 w-4 mr-2" /> Export the tasks
           </Button>
         </div>
 
-        <TaskInput onAdd={addTask} />
+        <TaskInput onAdd={addTask} isCompleted={false} />
 
         <Tabs defaultValue="pending" className="w-full">
           <TabsList className="mb-4 w-full">
-            <TabsTrigger value="pending" className="flex-1">Pending Tasks ({pendingTasks.length})</TabsTrigger>
-            <TabsTrigger value="completed" className="flex-1">Completed Tasks ({completedTasks.length})</TabsTrigger>
+            <TabsTrigger value="pending" className="flex-1">
+              Pending Tasks ({pendingTasks.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="flex-1">
+              Completed Tasks ({completedTasks.length})
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="pending">
             <TaskList 
-              tasks={pendingTasks}
+              tasks={pendingTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
               onEdit={editTask}
               onDelete={deleteTask}
               onStatusChange={toggleTaskStatus}
@@ -182,7 +229,7 @@ const Index = () => {
           
           <TabsContent value="completed">
             <TaskList 
-              tasks={completedTasks}
+              tasks={completedTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
               onEdit={editTask}
               onDelete={deleteTask}
               onStatusChange={toggleTaskStatus}
@@ -190,6 +237,35 @@ const Index = () => {
             />
           </TabsContent>
         </Tabs>
+
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(page)}
+                    isActive={currentPage === page}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
     </main>
   );
