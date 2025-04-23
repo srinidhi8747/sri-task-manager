@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock, Eye } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -84,32 +84,59 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         {task.description && (
           <Button 
             variant="outline" 
-            size="icon"
+            size="sm"
             onClick={() => setShowDescription(!showDescription)}
-            aria-label={showDescription ? "Hide description" : "Show description"}
+            className="min-w-[140px]"
           >
-            <Eye size={18} className="text-gray-500" />
+            {showDescription ? "Hide Description" : "View Description"}
           </Button>
         )}
 
         {!isCompleted ? (
           <>
-            <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onStatusChange(task.id)}
+              className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            >
               Mark as completed
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onDelete(task.id)} aria-label="Delete task">
-              <Trash2 size={18} className="text-red-500" />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="hover:bg-blue-50"
+              onClick={() => setIsEditing(true)}
+              aria-label="Edit task"
+            >
+              <Pencil size={18} className="text-blue-500" />
             </Button>
           </>
         ) : (
-          <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
-            Mark as pending
-          </Button>
+          <>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onStatusChange(task.id)}
+              className="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border-yellow-200"
+            >
+              Mark as pending
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onDelete(task.id)} 
+              aria-label="Delete task"
+              className="hover:bg-red-50"
+            >
+              <Trash2 size={18} className="text-red-500" />
+            </Button>
+          </>
         )}
       </div>
       
       {showDescription && task.description && (
-        <div className="mt-2 pl-8 pr-2 text-sm text-gray-600 whitespace-pre-wrap">
+        <div className="mt-2 pl-8 pr-2 text-sm text-gray-600 whitespace-pre-wrap border-t border-gray-100 pt-2">
           {task.description}
         </div>
       )}

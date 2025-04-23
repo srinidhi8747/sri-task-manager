@@ -4,10 +4,21 @@ import { Task } from "@/types/task";
 import { toast } from "@/hooks/use-toast";
 
 export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: Task[]) => {
-  if (pendingTasks.length === 0 && completedTasks.length === 0) {
+  const activeTab = document.querySelector('[data-state="active"]')?.getAttribute('value');
+  
+  if (activeTab === 'pending' && pendingTasks.length === 0) {
     toast({
-      title: "No tasks to export",
-      description: "There are no tasks available to export.",
+      title: "No pending tasks",
+      description: "There are no pending tasks to export.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  if (activeTab === 'completed' && completedTasks.length === 0) {
+    toast({
+      title: "No completed tasks",
+      description: "There are no completed tasks to export.",
       variant: "destructive",
     });
     return;
@@ -66,22 +77,19 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
     });
   };
   
-  if (pendingTasks.length > 0) {
+  if (activeTab === 'pending' && pendingTasks.length > 0) {
     addSheet(pendingTasks, "Pending Tasks");
   }
-  if (completedTasks.length > 0) {
+  if (activeTab === 'completed' && completedTasks.length > 0) {
     addSheet(completedTasks, "Completed Tasks");
   }
 
   if (workbook.worksheets.length > 0) {
     const buf = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buf]), "tasks.xlsx");
-    toast({ title: "Excel exported!", description: "Your tasks were downloaded." });
-  } else {
-    toast({
-      title: "No tasks to export",
-      description: "There are no tasks available to export.",
-      variant: "destructive",
+    toast({ 
+      title: "Excel exported!", 
+      description: `Your ${activeTab} tasks were downloaded.` 
     });
   }
 };
