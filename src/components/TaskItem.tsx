@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Task } from "@/types/task";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface TaskItemProps {
   task: Task;

@@ -15,6 +15,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface TaskListProps {
   tasks: Task[];
@@ -64,8 +65,8 @@ const TaskList = ({ tasks, onEdit, onDelete, onStatusChange, isCompleted }: Task
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
         case "due":
-          const aDate = a.due ? new Date(a.due).getTime() : Number.MAX_SAFE_INTEGER;
-          const bDate = b.due ? new Date(b.due).getTime() : Number.MAX_SAFE_INTEGER;
+          const aDate = a.endDate ? new Date(a.endDate).getTime() : Number.MAX_SAFE_INTEGER;
+          const bDate = b.endDate ? new Date(b.endDate).getTime() : Number.MAX_SAFE_INTEGER;
           comparison = aDate - bDate;
           break;
       }

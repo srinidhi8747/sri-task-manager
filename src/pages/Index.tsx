@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
@@ -109,8 +110,8 @@ const Index = () => {
       tasksToExport.forEach(task => {
         let dueDate = "", completionDate = "";
         
-        if (task.due) {
-          const dateObj = new Date(task.due);
+        if (task.endDate) {
+          const dateObj = new Date(task.endDate);
           dueDate = dateObj.toLocaleDateString();
         }
         

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface TaskInputProps {
   onAdd: (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => void;
