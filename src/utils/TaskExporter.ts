@@ -1,11 +1,14 @@
+
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { Task } from "@/types/task";
 import { toast } from "@/hooks/use-toast";
 
 export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: Task[]) => {
+  // Get the currently active tab
   const activeTab = document.querySelector('[data-state="active"]')?.getAttribute('value');
   
+  // Check if there are tasks to export based on the active tab
   if (activeTab === 'pending' && pendingTasks.length === 0) {
     toast({
       title: "No pending tasks",
@@ -25,27 +28,14 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
   }
 
   const workbook = new ExcelJS.Workbook();
+  const tasksToExport = activeTab === 'pending' ? pendingTasks : completedTasks;
   
-  const addSheet = (tasksToExport: Task[], name: string) => {
+  const addSheet = (tasks: Task[], name: string) => {
     const sheet = workbook.addWorksheet(name);
-    sheet.protect('password123', {
-      selectLockedCells: false,
-      selectUnlockedCells: false,
-      formatCells: false,
-      formatColumns: false,
-      formatRows: false,
-      insertColumns: false,
-      insertRows: false,
-      insertHyperlinks: false,
-      deleteColumns: false,
-      deleteRows: false,
-      sort: false,
-      autoFilter: false,
-      pivotTables: false
-    });
-    
     sheet.columns = [
+      { header: "Sequence", key: "sequence", width: 10 },
       { header: "Title", key: "title", width: 40 },
+      { header: "Description", key: "description", width: 40 },
       { header: "Priority", key: "priority", width: 15 },
       { header: "Created Date", key: "created", width: 20 },
       { header: "Created By", key: "createdBy", width: 20 },
@@ -53,7 +43,7 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
       { header: "Completion Date", key: "completed", width: 20 },
     ];
     
-    tasksToExport.forEach(task => {
+    tasks.forEach(task => {
       let dueDate = "", completionDate = "";
       
       if (task.endDate) {
@@ -67,7 +57,9 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
       }
       
       sheet.addRow({
+        sequence: task.sequence,
         title: task.title,
+        description: task.description || "No description",
         priority: task.priority,
         created: new Date(task.createdAt).toLocaleDateString(),
         createdBy: task.createdBy,
@@ -77,16 +69,13 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
     });
   };
   
-  if (activeTab === 'pending' && pendingTasks.length > 0) {
-    addSheet(pendingTasks, "Pending Tasks");
-  }
-  if (activeTab === 'completed' && completedTasks.length > 0) {
-    addSheet(completedTasks, "Completed Tasks");
-  }
+  // Only export tasks for the active tab
+  const tabName = activeTab === 'pending' ? "Pending Tasks" : "Completed Tasks";
+  addSheet(tasksToExport, tabName);
 
   if (workbook.worksheets.length > 0) {
     const buf = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buf]), "tasks.xlsx");
+    saveAs(new Blob([buf]), `${tabName}.xlsx`);
     toast({ 
       title: "Excel exported!", 
       description: `Your ${activeTab} tasks were downloaded.` 

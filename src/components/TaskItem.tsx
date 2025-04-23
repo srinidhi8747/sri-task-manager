@@ -43,7 +43,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSave();
     if (e.key === "Escape") {
       setEditVal(task.title);
@@ -61,12 +61,12 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         
         <div className="flex-1">
           {isEditing ? (
-            <Textarea
+            <Input
               value={editVal}
               onChange={e => setEditVal(e.target.value)}
               onBlur={handleSave}
               onKeyDown={handleKeyDown}
-              className="mr-2"
+              className="mr-2 h-8"
               autoFocus
               disabled={isCompleted}
             />
@@ -86,7 +86,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
             variant="outline" 
             size="sm"
             onClick={() => setShowDescription(!showDescription)}
-            className="min-w-[140px]"
+            className="min-w-[140px] text-purple-700 border-purple-200 bg-purple-50 hover:bg-purple-100"
           >
             {showDescription ? "Hide Description" : "View Description"}
           </Button>
@@ -100,7 +100,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               onClick={() => onStatusChange(task.id)}
               className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
             >
-              Mark as completed
+              Complete
             </Button>
             <Button 
               variant="ghost" 
@@ -111,6 +111,15 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
             >
               <Pencil size={18} className="text-blue-500" />
             </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onDelete(task.id)} 
+              aria-label="Delete task"
+              className="hover:bg-red-50"
+            >
+              <Trash2 size={18} className="text-red-500" />
+            </Button>
           </>
         ) : (
           <>
@@ -120,7 +129,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               onClick={() => onStatusChange(task.id)}
               className="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border-yellow-200"
             >
-              Mark as pending
+              Pending
             </Button>
             <Button 
               variant="ghost" 
@@ -137,7 +146,42 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
       
       {showDescription && task.description && (
         <div className="mt-2 pl-8 pr-2 text-sm text-gray-600 whitespace-pre-wrap border-t border-gray-100 pt-2">
-          {task.description}
+          <div className="flex justify-between items-start">
+            <div className="flex-1">{task.description}</div>
+            {!isCompleted && (
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-7 w-7 hover:bg-blue-50"
+                  onClick={() => setIsEditing(true)}
+                  aria-label="Edit task"
+                >
+                  <Pencil size={14} className="text-blue-500" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 hover:bg-red-50"
+                  onClick={() => onDelete(task.id)} 
+                  aria-label="Delete task"
+                >
+                  <Trash2 size={14} className="text-red-500" />
+                </Button>
+              </div>
+            )}
+            {isCompleted && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 hover:bg-red-50"
+                onClick={() => onDelete(task.id)} 
+                aria-label="Delete task"
+              >
+                <Trash2 size={14} className="text-red-500" />
+              </Button>
+            )}
+          </div>
         </div>
       )}
       
