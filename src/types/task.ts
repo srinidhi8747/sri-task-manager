@@ -1,8 +1,10 @@
 
 export interface Task {
   id: number;
+  sequence: number;
   title: string;
-  due?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   completed: boolean;
   createdAt: string;
   createdBy: string;

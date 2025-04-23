@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
@@ -28,12 +27,15 @@ const Index = () => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string, due: Date | null, priority: Priority) => {
+  const addTask = (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
     setTasks(prev => {
+      const sequence = prev.length + 1;
       const newTask: Task = { 
         id: Date.now(), 
+        sequence,
         title, 
-        due: due ? due.toISOString() : null, 
+        startDate: startDate ? startDate.toISOString() : null,
+        endDate: endDate ? endDate.toISOString() : null,
         completed: false,
         createdAt: new Date().toISOString(),
         createdBy: "Current User", // In a real app, this would come from auth

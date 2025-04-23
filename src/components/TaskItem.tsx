@@ -1,12 +1,10 @@
 
 import { useState } from "react";
-import { Pencil, Trash2, Calendar as CalendarIcon, Clock as ClockIcon, User, ArrowUp, ArrowDown } from "lucide-react";
+import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Task } from "@/types/task";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -50,11 +48,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
       isCompleted && "bg-gray-50"
     )}>
       <div className="flex items-center gap-3">
-        <Checkbox 
-          checked={isCompleted}
-          onCheckedChange={() => onStatusChange(task.id)}
-          className="h-5 w-5"
-        />
+        <span className="text-gray-500 font-medium min-w-[24px]">{task.sequence}.</span>
         
         <div className="flex-1">
           {isEditing ? (
@@ -68,7 +62,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               disabled={isCompleted}
             />
           ) : (
-            <div className={cn("font-medium", isCompleted && "line-through text-gray-500")}>
+            <div className={cn("font-medium", isCompleted && "text-gray-500")}>
               {task.title}
             </div>
           )}
@@ -78,15 +72,27 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
           {task.priority}
         </Badge>
 
-        {!isCompleted && !isEditing && (
-          <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} aria-label="Edit task">
-            <Pencil size={18} />
-          </Button>
+        {!isCompleted && (
+          <>
+            {!isEditing && (
+              <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} aria-label="Edit task">
+                <Pencil size={18} />
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
+              Mark as completed
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => onDelete(task.id)} aria-label="Delete task">
+              <Trash2 size={18} className="text-red-500" />
+            </Button>
+          </>
         )}
         
-        <Button variant="ghost" size="icon" onClick={() => onDelete(task.id)} aria-label="Delete task">
-          <Trash2 size={18} className="text-red-500" />
-        </Button>
+        {isCompleted && (
+          <Button variant="outline" size="sm" onClick={() => onStatusChange(task.id)}>
+            Mark as pending
+          </Button>
+        )}
       </div>
       
       <div className={cn("grid gap-2 mt-2 text-xs text-gray-500", 
@@ -94,7 +100,12 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
       )}>
         <div className="flex items-center gap-1">
           <CalendarIcon size={12} />
-          {task.due ? format(new Date(task.due), "PPP") : "No due date"}
+          Start: {task.startDate ? format(new Date(task.startDate), "PPP") : "No start date"}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <CalendarIcon size={12} />
+          End: {task.endDate ? format(new Date(task.endDate), "PPP") : "No end date"}
         </div>
         
         <div className="flex items-center gap-1">
@@ -103,16 +114,10 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         </div>
         
         <div className="flex items-center gap-1">
-          <ClockIcon size={12} />
-          Created: {format(new Date(task.createdAt), "PPP")}
+          <Clock size={12} />
+          {isCompleted ? `Completed: ${format(new Date(task.completedAt!), "PPP")}` : 
+           `Created: ${format(new Date(task.createdAt), "PPP")}`}
         </div>
-        
-        {task.completedAt && (
-          <div className="flex items-center gap-1">
-            <ClockIcon size={12} />
-            Completed: {format(new Date(task.completedAt), "PPP")}
-          </div>
-        )}
       </div>
     </div>
   );
