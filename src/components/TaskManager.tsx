@@ -16,13 +16,14 @@ interface TaskManagerProps {
 }
 
 const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskManagerProps) => {
-  const addTask = (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
+  const addTask = (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
     onTasksChange((prev: Task[]) => {
       const sequence = prev.length + 1;
       const newTask: Task = { 
         id: Date.now(), 
         sequence,
-        title, 
+        title,
+        description,
         startDate: startDate ? startDate.toISOString() : null,
         endDate: endDate ? endDate.toISOString() : null,
         completed: false,

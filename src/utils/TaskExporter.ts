@@ -1,4 +1,3 @@
-
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { Task } from "@/types/task";
@@ -74,7 +73,15 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
     addSheet(completedTasks, "Completed Tasks");
   }
 
-  const buf = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buf]), "tasks.xlsx");
-  toast({ title: "Excel exported!", description: "Your tasks were downloaded." });
+  if (workbook.worksheets.length > 0) {
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), "tasks.xlsx");
+    toast({ title: "Excel exported!", description: "Your tasks were downloaded." });
+  } else {
+    toast({
+      title: "No tasks to export",
+      description: "There are no tasks available to export.",
+      variant: "destructive",
+    });
+  }
 };

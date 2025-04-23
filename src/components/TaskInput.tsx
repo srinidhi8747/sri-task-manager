@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, Clock as ClockIcon, Flag } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Flag } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -22,12 +23,13 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
 interface TaskInputProps {
-  onAdd: (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => void;
+  onAdd: (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: Priority) => void;
   isCompleted: boolean;
 }
 
 const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [priority, setPriority] = useState<Priority>("medium");
@@ -38,12 +40,14 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
   const handleAdd = () => {
     if (title.trim() === "") return;
     onAdd(
-      title.trim(), 
+      title.trim(),
+      description.trim(),
       startDate || null,
       endDate || null,
       priority
     );
     setTitle("");
+    setDescription("");
     setStartDate(undefined);
     setEndDate(undefined);
     setPriority("medium");
@@ -51,13 +55,22 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
 
   return (
     <div className="flex flex-col gap-3 mb-6">
-      <Textarea
-        placeholder="Add a new task..."
+      <Input
+        placeholder="Task title..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        className="flex-1 bg-white shadow"
+        maxLength={100}
+        aria-label="Task title"
+      />
+      
+      <Textarea
+        placeholder="Task description (optional)..."
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
         className="flex-1 bg-white shadow min-h-[100px]"
         maxLength={500}
-        aria-label="Task title and description"
+        aria-label="Task description"
       />
       
       <div className="flex flex-wrap gap-2">

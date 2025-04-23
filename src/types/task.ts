@@ -1,8 +1,8 @@
-
 export interface Task {
   id: number;
   sequence: number;
   title: string;
+  description?: string;
   startDate?: string | null;
   endDate?: string | null;
   completed: boolean;

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock } from "lucide-react";
+import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ interface TaskItemProps {
 const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editVal, setEditVal] = useState(task.title);
+  const [showDescription, setShowDescription] = useState(false);
   const isMobile = useIsMobile();
 
   const priorityColors = {
@@ -42,7 +43,6 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
     setIsEditing(false);
   };
 
-  // Updated the type from HTMLInputElement to HTMLTextAreaElement
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") handleSave();
     if (e.key === "Escape") {
@@ -71,7 +71,7 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
               disabled={isCompleted}
             />
           ) : (
-            <div className={cn("font-medium whitespace-pre-wrap", isCompleted && "text-gray-500")}>
+            <div className={cn("font-medium", isCompleted && "text-gray-500")}>
               {task.title}
             </div>
           )}
@@ -80,6 +80,17 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         <Badge className={priorityColors[task.priority]}>
           {priorityLabels[task.priority]}
         </Badge>
+
+        {task.description && (
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setShowDescription(!showDescription)}
+            aria-label={showDescription ? "Hide description" : "Show description"}
+          >
+            <Eye size={18} className="text-gray-500" />
+          </Button>
+        )}
 
         {!isCompleted ? (
           <>
@@ -96,6 +107,12 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
           </Button>
         )}
       </div>
+      
+      {showDescription && task.description && (
+        <div className="mt-2 pl-8 pr-2 text-sm text-gray-600 whitespace-pre-wrap">
+          {task.description}
+        </div>
+      )}
       
       <div className={cn("grid gap-2 mt-2 text-xs text-gray-500", 
         isMobile ? "grid-cols-1" : "grid-cols-4"
