@@ -4,6 +4,7 @@ import TaskItem from "./TaskItem";
 interface Task {
   id: number;
   title: string;
+  due?: string | null;
 }
 
 interface TaskListProps {
