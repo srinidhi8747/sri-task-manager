@@ -10,14 +10,14 @@ const ITEMS_PER_PAGE = 10;
 
 interface TaskManagerProps {
   tasks: Task[];
-  onTasksChange: (tasks: Task[]) => void;
+  onTasksChange: (tasks: Task[] | ((prev: Task[]) => Task[])) => void;
   currentPage: number;
   onPageChange: (page: number) => void;
 }
 
 const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskManagerProps) => {
   const addTask = (title: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
-    onTasksChange(prev => {
+    onTasksChange((prev: Task[]) => {
       const sequence = prev.length + 1;
       const newTask: Task = { 
         id: Date.now(), 
@@ -38,7 +38,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
   };
 
   const editTask = (id: number, newTitle: string) => {
-    onTasksChange(prev =>
+    onTasksChange((prev: Task[]) =>
       prev.map(task => (task.id === id ? { ...task, title: newTitle } : task))
     );
     toast({ title: "Task updated!", description: `Task changed to "${newTitle}".` });
@@ -46,7 +46,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
 
   const deleteTask = (id: number) => {
     const taskToDelete = tasks.find(t => t.id === id);
-    onTasksChange(prev => prev.filter(task => task.id !== id));
+    onTasksChange((prev: Task[]) => prev.filter(task => task.id !== id));
     
     toast({
       title: "Task deleted",
@@ -56,7 +56,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
   };
 
   const toggleTaskStatus = (id: number) => {
-    onTasksChange(prev => 
+    onTasksChange((prev: Task[]) => 
       prev.map(task => 
         task.id === id 
           ? {
