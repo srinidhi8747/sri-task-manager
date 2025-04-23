@@ -5,7 +5,7 @@ import TaskList from "@/components/TaskList";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FileExcel, Download } from "lucide-react";
+import { FileX, Download } from "lucide-react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
@@ -94,7 +94,7 @@ const Index = () => {
             onClick={exportToExcel}
             aria-label="Download all tasks"
           >
-            <FileExcel className="mr-2" /> <Download className="mr-1" /> Export
+            <FileX className="mr-2" /> <Download className="mr-1" /> Export
           </Button>
         </div>
 
