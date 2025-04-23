@@ -133,8 +133,8 @@ const Index = () => {
     
     const addSheet = (tasksToExport: Task[], name: string) => {
       const sheet = workbook.addWorksheet(name);
-      sheet.protection.password = 'password123';
-      sheet.protection.sheet = true;
+      sheet.protect('password123');
+      sheet.protect(true);
       
       sheet.columns = [
         { header: "Title", key: "title", width: 40 },

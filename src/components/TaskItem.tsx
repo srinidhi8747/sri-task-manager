@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import { Pencil, Trash2, Calendar as CalendarIcon, User, Clock } from "lucide-react";
-import { Input, Textarea } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Task } from "@/types/task";
