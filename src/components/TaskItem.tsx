@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Calendar, User, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -145,12 +145,12 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
         isMobile ? "grid-cols-1" : "grid-cols-4"
       )}>
         <div className="flex items-center gap-1">
-          <CalendarIcon size={12} />
+          <Calendar size={12} />
           Start: {task.startDate ? format(new Date(task.startDate), "PPP") : "No start date"}
         </div>
         
         <div className="flex items-center gap-1">
-          <CalendarIcon size={12} />
+          <Calendar size={12} />
           End: {task.endDate ? format(new Date(task.endDate), "PPP") : "No end date"}
         </div>
         
