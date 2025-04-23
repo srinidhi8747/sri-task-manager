@@ -42,7 +42,8 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange, isCompleted }: TaskI
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // Updated the type from HTMLInputElement to HTMLTextAreaElement
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") handleSave();
     if (e.key === "Escape") {
       setEditVal(task.title);
