@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
 import { toast } from "@/hooks/use-toast";
@@ -8,21 +8,39 @@ import { Button } from "@/components/ui/button";
 import { FileX, Download } from "lucide-react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { Link } from "react-router-dom";
-
-interface Task {
-  id: number;
-  title: string;
-  due?: string | null;
-}
+import { Task, Priority } from "@/types/task";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [history, setHistory] = useState<Task[]>([]);
+  const isMobile = useIsMobile();
 
-  const addTask = (title: string, due: Date | null) => {
+  // Load tasks from localStorage on mount
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
+  }, []);
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = (title: string, due: Date | null, priority: Priority) => {
     setTasks(prev => {
-      const newTask = { id: Date.now(), title, due: due ? due.toISOString() : null };
+      const newTask: Task = { 
+        id: Date.now(), 
+        title, 
+        due: due ? due.toISOString() : null, 
+        completed: false,
+        createdAt: new Date().toISOString(),
+        createdBy: "Current User", // In a real app, this would come from auth
+        priority: priority,
+        completedAt: null
+      };
+      
       toast({ title: "Task added!", description: `"${title}" has been added.` });
       return [newTask, ...prev];
     });
@@ -38,7 +56,7 @@ const Index = () => {
   const deleteTask = (id: number) => {
     const taskToDelete = tasks.find(t => t.id === id);
     setTasks(prev => prev.filter(task => task.id !== id));
-    if (taskToDelete) setHistory(prev => [{ ...taskToDelete }, ...prev]);
+    
     toast({
       title: "Task deleted",
       description: `"${taskToDelete?.title ?? "Task"}" has been deleted.`,
@@ -46,31 +64,72 @@ const Index = () => {
     });
   };
 
+  const toggleTaskStatus = (id: number) => {
+    setTasks(prev => 
+      prev.map(task => 
+        task.id === id 
+          ? {
+              ...task, 
+              completed: !task.completed,
+              completedAt: !task.completed ? new Date().toISOString() : null
+            }
+          : task
+      )
+    );
+    
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      if (!task.completed) {
+        toast({ title: "Task completed!", description: `"${task.title}" marked as completed.` });
+      } else {
+        toast({ title: "Task reopened!", description: `"${task.title}" moved back to pending.` });
+      }
+    }
+  };
+
+  const pendingTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
+
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
+    
     const addSheet = (tasksToExport: Task[], name: string) => {
       const sheet = workbook.addWorksheet(name);
       sheet.columns = [
         { header: "Title", key: "title", width: 40 },
-        { header: "Due date", key: "due", width: 20 },
-        { header: "Due time", key: "time", width: 16 }
+        { header: "Priority", key: "priority", width: 15 },
+        { header: "Created Date", key: "created", width: 20 },
+        { header: "Created By", key: "createdBy", width: 20 },
+        { header: "Due Date", key: "due", width: 20 },
+        { header: "Completion Date", key: "completed", width: 20 },
       ];
+      
       tasksToExport.forEach(task => {
-        let dateDisplay = "", timeDisplay = "";
+        let dueDate = "", completionDate = "";
+        
         if (task.due) {
           const dateObj = new Date(task.due);
-          dateDisplay = dateObj.toLocaleDateString();
-          timeDisplay = dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          dueDate = dateObj.toLocaleDateString();
         }
+        
+        if (task.completedAt) {
+          const dateObj = new Date(task.completedAt);
+          completionDate = dateObj.toLocaleDateString();
+        }
+        
         sheet.addRow({
           title: task.title,
-          due: dateDisplay,
-          time: timeDisplay
+          priority: task.priority,
+          created: new Date(task.createdAt).toLocaleDateString(),
+          createdBy: task.createdBy,
+          due: dueDate,
+          completed: completionDate
         });
       });
     };
-    addSheet(tasks, "Current Tasks");
-    addSheet(history, "History Tasks");
+    
+    addSheet(pendingTasks, "Pending Tasks");
+    addSheet(completedTasks, "Completed Tasks");
 
     const buf = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buf]), "tasks.xlsx");
@@ -78,9 +137,9 @@ const Index = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#F1F0FB] px-2">
-      <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-        <div className="flex justify-between items-center mb-4">
+    <main className={`min-h-screen bg-[#F1F0FB] ${isMobile ? 'p-4' : 'px-6 py-8'}`}>
+      <div className={`w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-100`}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-1 text-[#9b87f5] tracking-tight">
               Mini Task Hub
@@ -89,44 +148,43 @@ const Index = () => {
               A simple place to organize your tasks.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="text-xs"
-            >
-              <Link to="/sparkles">View Theme</Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="ml-2"
-              onClick={exportToExcel}
-              aria-label="Download all tasks"
-            >
-              <FileX className="mr-2" /> <Download className="mr-1" /> Export
-            </Button>
-          </div>
+          
+          <Button
+            variant="outline"
+            onClick={exportToExcel}
+            aria-label="Download all tasks"
+            size={isMobile ? "sm" : "default"}
+          >
+            <FileX className="h-4 w-4 mr-2" /> <Download className="h-4 w-4 mr-1" /> Export
+          </Button>
         </div>
 
-        <Tabs defaultValue="tasks" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
+        <TaskInput onAdd={addTask} />
+
+        <Tabs defaultValue="pending" className="w-full">
+          <TabsList className="mb-4 w-full">
+            <TabsTrigger value="pending" className="flex-1">Pending Tasks ({pendingTasks.length})</TabsTrigger>
+            <TabsTrigger value="completed" className="flex-1">Completed Tasks ({completedTasks.length})</TabsTrigger>
           </TabsList>
-          <TabsContent value="tasks">
-            <TaskInput onAdd={addTask} />
-            <TaskList tasks={tasks} onEdit={editTask} onDelete={deleteTask} />
-          </TabsContent>
-          <TabsContent value="history">
-            <TaskList
-              tasks={history}
-              onEdit={() => {}}
-              onDelete={() => {}}
+          
+          <TabsContent value="pending">
+            <TaskList 
+              tasks={pendingTasks}
+              onEdit={editTask}
+              onDelete={deleteTask}
+              onStatusChange={toggleTaskStatus}
+              isCompleted={false}
             />
-            {history.length === 0 && (
-              <div className="text-gray-400 text-center py-12">No history yet.</div>
-            )}
+          </TabsContent>
+          
+          <TabsContent value="completed">
+            <TaskList 
+              tasks={completedTasks}
+              onEdit={editTask}
+              onDelete={deleteTask}
+              onStatusChange={toggleTaskStatus}
+              isCompleted={true}
+            />
           </TabsContent>
         </Tabs>
       </div>
