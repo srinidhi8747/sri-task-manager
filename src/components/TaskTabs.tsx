@@ -4,8 +4,6 @@ import { Task } from "@/types/task";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
-import TaskHistoryList from "@/components/TaskHistoryList";
-import { useTaskHistory } from "@/hooks/use-task-history";
 
 interface TaskTabsProps {
   tasks: Task[];
@@ -17,7 +15,7 @@ interface TaskTabsProps {
   onAdd: (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: 'low' | 'medium' | 'high') => void;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 const TaskTabs: React.FC<TaskTabsProps> = ({
   tasks,
@@ -28,7 +26,6 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
   onStatusChange,
   onAdd
 }) => {
-  const { deletedTasks, isLoading: isHistoryLoading } = useTaskHistory();
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
 
@@ -40,9 +37,6 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
         </TabsTrigger>
         <TabsTrigger value="completed" className="flex-1">
           Completed Tasks ({completedTasks.length})
-        </TabsTrigger>
-        <TabsTrigger value="history" className="flex-1">
-          Task History ({deletedTasks.length})
         </TabsTrigger>
       </TabsList>
       
@@ -65,14 +59,6 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
           onStatusChange={onStatusChange}
           isCompleted={true}
         />
-      </TabsContent>
-
-      <TabsContent value="history">
-        {isHistoryLoading ? (
-          <div className="text-center py-4">Loading history...</div>
-        ) : (
-          <TaskHistoryList deletedTasks={deletedTasks} />
-        )}
       </TabsContent>
     </Tabs>
   );
