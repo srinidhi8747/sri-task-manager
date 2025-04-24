@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Task, Priority } from "@/types/task";
 import TaskInput from "@/components/TaskInput";
@@ -18,7 +17,6 @@ interface TaskManagerProps {
 const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskManagerProps) => {
   const addTask = (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
     onTasksChange((prev: Task[]) => {
-      // Calculate sequence based on pending tasks only
       const pendingTasks = prev.filter(t => !t.completed);
       const sequence = pendingTasks.length + 1;
       
@@ -41,27 +39,28 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
     });
   };
 
-  const editTask = (id: number, newTitle: string) => {
+  const editTask = (id: number, newTitle: string, newDescription?: string) => {
     onTasksChange((prev: Task[]) =>
-      prev.map(task => (task.id === id ? { ...task, title: newTitle } : task))
+      prev.map(task => (task.id === id ? { 
+        ...task, 
+        title: newTitle,
+        description: newDescription !== undefined ? newDescription : task.description 
+      } : task))
     );
-    toast({ title: "Task updated!", description: `Task changed to "${newTitle}".` });
+    toast({ title: "Task updated!", description: `Task has been updated.` });
   };
 
   const deleteTask = (id: number) => {
     const taskToDelete = tasks.find(t => t.id === id);
     
     onTasksChange((prev: Task[]) => {
-      // Remove the task with the given id
       const filteredTasks = prev.filter(task => task.id !== id);
       
-      // If it was a pending task, update sequence numbers for all remaining pending tasks
       const pendingTasks = filteredTasks.filter(t => !t.completed);
       pendingTasks.forEach((task, index) => {
         task.sequence = index + 1;
       });
       
-      // Also update sequence for completed tasks
       const completedTasks = filteredTasks.filter(t => t.completed);
       completedTasks.forEach((task, index) => {
         task.sequence = index + 1;
@@ -79,7 +78,6 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
 
   const toggleTaskStatus = (id: number) => {
     onTasksChange((prev: Task[]) => {
-      // First, update the status of the task
       const updatedTasks = prev.map(task => 
         task.id === id 
           ? {
@@ -90,13 +88,11 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
           : task
       );
       
-      // Now resequence the pending tasks
       const pendingTasks = updatedTasks.filter(t => !t.completed);
       pendingTasks.forEach((task, index) => {
         task.sequence = index + 1;
       });
       
-      // Also resequence the completed tasks
       const completedTasks = updatedTasks.filter(t => t.completed);
       completedTasks.forEach((task, index) => {
         task.sequence = index + 1;
@@ -115,8 +111,13 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
     }
   };
 
-  const pendingTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
+  const pendingTasks = tasks
+    .filter(task => !task.completed)
+    .map((task, index) => ({ ...task, sequence: index + 1 }));
+
+  const completedTasks = tasks
+    .filter(task => task.completed)
+    .map((task, index) => ({ ...task, sequence: index + 1 }));
 
   return (
     <Tabs defaultValue="pending" className="w-full">

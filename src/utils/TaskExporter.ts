@@ -11,8 +11,8 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
   // Check if there are tasks to export based on the active tab
   if (activeTab === 'pending' && pendingTasks.length === 0) {
     toast({
-      title: "No pending tasks",
-      description: "There are no pending tasks to export.",
+      title: "No tasks to export",
+      description: "The pending tasks are zero",
       variant: "destructive",
     });
     return;
@@ -20,8 +20,8 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
 
   if (activeTab === 'completed' && completedTasks.length === 0) {
     toast({
-      title: "No completed tasks",
-      description: "There are no completed tasks to export.",
+      title: "No tasks to export",
+      description: "The completed tasks are zero",
       variant: "destructive",
     });
     return;
@@ -43,7 +43,10 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
       { header: "Completion Date", key: "completed", width: 20 },
     ];
     
-    tasks.forEach(task => {
+    // Sort tasks by sequence in ascending order
+    const sortedTasks = [...tasks].sort((a, b) => a.sequence - b.sequence);
+    
+    sortedTasks.forEach(task => {
       let dueDate = "", completionDate = "";
       
       if (task.endDate) {
@@ -68,17 +71,14 @@ export const exportTasksToExcel = async (pendingTasks: Task[], completedTasks: T
       });
     });
   };
-  
-  // Only export tasks for the active tab
+
   const tabName = activeTab === 'pending' ? "Pending Tasks" : "Completed Tasks";
   addSheet(tasksToExport, tabName);
 
-  if (workbook.worksheets.length > 0) {
-    const buf = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buf]), `${tabName}.xlsx`);
-    toast({ 
-      title: "Excel exported!", 
-      description: `Your ${activeTab} tasks were downloaded.` 
-    });
-  }
+  const buf = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buf]), `${tabName}.xlsx`);
+  toast({ 
+    title: "Excel exported!", 
+    description: `Your ${tabName} were downloaded successfully.` 
+  });
 };
