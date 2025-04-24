@@ -7,19 +7,18 @@ import TaskManager from "@/components/TaskManager";
 import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
 import { toast } from "@/hooks/use-toast";
+import SyncService from "@/services/syncService";
 
 const ITEMS_PER_PAGE = 10;
 const STORAGE_KEY = "tasks_v1"; // Using a versioned key
-const SYNC_INTERVAL = 1000; // Check every second for changes
-const WS_RECONNECT_DELAY = 3000; // Reconnect delay in ms
-const SYNC_CHANNEL = "task-sync-channel"; // BroadcastChannel name
+const SYNC_INTERVAL = 500; // Check more frequently (every 0.5s)
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
   const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
-  const [syncChannel, setSyncChannel] = useState<BroadcastChannel | null>(null);
+  const [syncService] = useState(() => SyncService.getInstance());
 
   // Function to load tasks from localStorage
   const loadTasks = () => {
@@ -49,7 +48,7 @@ const Index = () => {
     }
   };
 
-  // Helper function to save tasks to localStorage
+  // Helper function to save tasks to localStorage and sync
   const saveTasks = (updatedTasks: Task[]) => {
     try {
       const timeNow = Date.now();
@@ -58,58 +57,39 @@ const Index = () => {
       setLastSyncTime(timeNow);
       
       // Broadcast the change to other tabs/windows/devices
-      if (syncChannel) {
-        syncChannel.postMessage({ 
-          tasks: updatedTasks, 
-          timestamp: timeNow 
-        });
-      }
+      syncService.sendMessage({ 
+        tasks: updatedTasks, 
+        timestamp: timeNow 
+      });
+      
+      console.log("Tasks saved and synced:", timeNow);
     } catch (e) {
       console.error("Error saving tasks to localStorage:", e);
     }
   };
 
-  // Set up the BroadcastChannel
+  // Set up the sync service subscription
   useEffect(() => {
-    // Create broadcast channel for cross-tab/window communication
-    let channel: BroadcastChannel;
-    try {
-      channel = new BroadcastChannel(SYNC_CHANNEL);
-      setSyncChannel(channel);
-      
-      channel.onmessage = (event) => {
-        console.log("BroadcastChannel message received", event.data);
-        if (event.data.timestamp > lastSyncTime) {
-          console.log("Updating tasks from broadcast message");
-          setTasks(event.data.tasks);
-          setLastSyncTime(event.data.timestamp);
-        }
-      };
+    // Subscribe to sync events
+    const unsubscribe = syncService.subscribe((data) => {
+      console.log("Sync event received:", data);
+      if (data.timestamp > lastSyncTime) {
+        console.log("Updating tasks from sync event");
+        setTasks(data.tasks);
+        setLastSyncTime(data.timestamp);
+      }
+    });
 
-      channel.onmessageerror = (error) => {
-        console.error("BroadcastChannel error:", error);
-      };
-
-      toast({
-        title: "Sync enabled",
-        description: "Your tasks will be synchronized across devices",
-      });
-    } catch (error) {
-      console.error("BroadcastChannel not supported:", error);
-      // Fallback to just using localStorage if BroadcastChannel is not supported
-      toast({
-        title: "Limited sync",
-        description: "Cross-device sync may be limited on this browser",
-        variant: "destructive",
-      });
-    }
+    // Show feedback to the user
+    toast({
+      title: "Sync enabled",
+      description: "Your tasks will be synchronized across devices",
+    });
     
     return () => {
-      if (channel) {
-        channel.close();
-      }
+      unsubscribe();
     };
-  }, []);
+  }, [syncService, lastSyncTime]);
 
   // Load tasks on mount and set up sync mechanisms
   useEffect(() => {
@@ -166,6 +146,27 @@ const Index = () => {
     window.addEventListener('popstate', loadTasks);
     window.addEventListener('resize', loadTasks); // Sometimes indicates app switching on mobile
 
+    // More aggressive refresh on mobile
+    if (isMobile) {
+      // Force refresh more aggressively on mobile
+      const touchInterval = setInterval(() => {
+        console.log("Mobile touch interval check");
+        loadTasks();
+      }, 2000); // Every 2 seconds on mobile
+      
+      return () => {
+        clearInterval(syncInterval);
+        clearInterval(touchInterval);
+        window.removeEventListener('storage', handleStorageChange);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('pageshow', handlePageShow);
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('popstate', loadTasks);
+        window.removeEventListener('resize', loadTasks);
+      };
+    }
+    
     // Clean up on unmount
     return () => {
       clearInterval(syncInterval);
@@ -177,7 +178,7 @@ const Index = () => {
       window.removeEventListener('popstate', loadTasks);
       window.removeEventListener('resize', loadTasks);
     };
-  }, [lastSyncTime]); // Added lastSyncTime as dependency to re-run when it changes
+  }, [isMobile]); // Only re-run when isMobile changes
 
   // Save tasks whenever they change
   useEffect(() => {
