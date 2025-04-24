@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Task } from "@/types/task";
@@ -17,6 +18,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
   const [syncService] = useState(() => SyncService.getInstance());
+  const [initialized, setInitialized] = useState(false);
 
   // Function to load tasks from localStorage
   const loadTasks = () => {
@@ -26,8 +28,9 @@ const Index = () => {
         const parsedTasks = JSON.parse(savedTasks);
         const localLastModified = localStorage.getItem("tasks_last_modified");
         
-        // Only update if local data is newer or different
+        // Only update if local data is newer or different or we haven't initialized yet
         if (
+          !initialized || 
           !localLastModified || 
           parseInt(localLastModified) > lastSyncTime || 
           JSON.stringify(parsedTasks) !== JSON.stringify(tasks)
@@ -37,12 +40,19 @@ const Index = () => {
           if (localLastModified) {
             setLastSyncTime(parseInt(localLastModified));
           }
+          if (!initialized) {
+            setInitialized(true);
+          }
         }
       } catch (e) {
         console.error("Error parsing tasks from localStorage:", e);
         // Reset to empty array if data is corrupted
         setTasks([]);
+        setInitialized(true);
       }
+    } else if (!initialized) {
+      // If no tasks in localStorage and we haven't initialized, set empty array
+      setInitialized(true);
     }
   };
 
@@ -170,15 +180,15 @@ const Index = () => {
       window.removeEventListener('popstate', loadTasks);
       window.removeEventListener('resize', loadTasks);
     };
-  }, [isMobile]); // Only re-run when isMobile changes
+  }, [isMobile, initialized]); // Add initialized to dependencies
 
-  // Save tasks whenever they change
+  // Save tasks whenever they change, but only if we've initialized
   useEffect(() => {
-    if (tasks.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+    if (initialized && (tasks.length > 0 || localStorage.getItem(STORAGE_KEY))) {
       console.log("Saving tasks to localStorage", new Date().toISOString());
       saveTasks(tasks);
     }
-  }, [tasks]);
+  }, [tasks, initialized]);
 
   const handleExport = async () => {
     const pendingTasks = tasks.filter(task => !task.completed);
