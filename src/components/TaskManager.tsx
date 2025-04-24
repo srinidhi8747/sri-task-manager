@@ -1,11 +1,12 @@
-
 import React from "react";
 import { Task, Priority } from "@/types/task";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
+import TaskHistoryList from "@/components/TaskHistoryList";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useTaskHistory } from "@/hooks/use-task-history";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,7 +34,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
             end_date: endDate?.toISOString(),
             completed: false,
             created_by: "Current User",
-            priority: priority // Ensure priority is of type Priority
+            priority: priority
           }
         ])
         .select()
@@ -52,7 +53,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
         createdAt: newTask.created_at,
         createdBy: newTask.created_by,
         completedAt: newTask.completed_at,
-        priority: newTask.priority as Priority // Type assertion to ensure it's a Priority
+        priority: newTask.priority as Priority
       };
 
       onTasksChange(prev => [formattedTask, ...prev]);
@@ -194,13 +195,9 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
     }
   };
 
-  const pendingTasks = tasks
-    .filter(task => !task.completed)
-    .map((task, index) => ({ ...task, sequence: index + 1 }));
-
-  const completedTasks = tasks
-    .filter(task => task.completed)
-    .map((task, index) => ({ ...task, sequence: index + 1 }));
+  const { deletedTasks, isLoading: isHistoryLoading } = useTaskHistory();
+  const pendingTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
 
   return (
     <Tabs defaultValue="pending" className="w-full">
@@ -210,6 +207,9 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
         </TabsTrigger>
         <TabsTrigger value="completed" className="flex-1">
           Completed Tasks ({completedTasks.length})
+        </TabsTrigger>
+        <TabsTrigger value="history" className="flex-1">
+          Task History ({deletedTasks.length})
         </TabsTrigger>
       </TabsList>
       
@@ -232,6 +232,14 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
           onStatusChange={toggleTaskStatus}
           isCompleted={true}
         />
+      </TabsContent>
+
+      <TabsContent value="history">
+        {isHistoryLoading ? (
+          <div className="text-center py-4">Loading history...</div>
+        ) : (
+          <TaskHistoryList deletedTasks={deletedTasks} />
+        )}
       </TabsContent>
     </Tabs>
   );

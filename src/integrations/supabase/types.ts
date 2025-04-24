@@ -51,6 +51,57 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks_history: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string
+          deleted_by: string
+          description: string | null
+          end_date: string | null
+          id: number
+          priority: string
+          sequence: number
+          start_date: string | null
+          task_id: number
+          title: string
+        }
+        Insert: {
+          completed: boolean
+          completed_at?: string | null
+          created_at: string
+          created_by: string
+          deleted_at?: string
+          deleted_by: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          priority: string
+          sequence: number
+          start_date?: string | null
+          task_id: number
+          title: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string
+          deleted_by?: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          priority?: string
+          sequence?: number
+          start_date?: string | null
+          task_id?: number
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
