@@ -8,21 +8,53 @@ import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
 
 const ITEMS_PER_PAGE = 10;
+const STORAGE_KEY = "tasks_v1"; // Using a versioned key
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
+  // Load tasks on mount
   useEffect(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
+    const loadTasks = () => {
+      const savedTasks = localStorage.getItem(STORAGE_KEY);
+      if (savedTasks) {
+        try {
+          setTasks(JSON.parse(savedTasks));
+        } catch (e) {
+          console.error("Error parsing tasks from localStorage:", e);
+          // Reset to empty array if data is corrupted
+          setTasks([]);
+        }
+      }
+    };
+
+    // Load tasks initially
+    loadTasks();
+
+    // Add event listener for storage changes from other tabs/windows
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          setTasks(JSON.parse(e.newValue));
+        } catch (err) {
+          console.error("Error parsing tasks from storage event:", err);
+        }
+      }
+    };
+
+    // Listen for changes from other tabs/windows
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
+  // Save tasks whenever they change
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
   const handleExport = async () => {
