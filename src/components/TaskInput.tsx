@@ -39,6 +39,15 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
 
   const handleAdd = () => {
     if (title.trim() === "") return;
+    
+    console.log("Adding task:", { 
+      title: title.trim(),
+      description: description.trim(),
+      startDate: startDate || null,
+      endDate: endDate || null,
+      priority 
+    });
+    
     onAdd(
       title.trim(),
       description.trim(),
@@ -46,11 +55,19 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
       endDate || null,
       priority
     );
+    
     setTitle("");
     setDescription("");
     setStartDate(undefined);
     setEndDate(undefined);
     setPriority("medium");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey && title.trim() !== "") {
+      e.preventDefault();
+      handleAdd();
+    }
   };
 
   return (
@@ -59,6 +76,7 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
         placeholder="Task title..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        onKeyDown={handleKeyPress}
         className="flex-1 bg-white shadow"
         maxLength={100}
         aria-label="Task title"
@@ -122,7 +140,12 @@ const TaskInput = ({ onAdd, isCompleted }: TaskInputProps) => {
           </SelectContent>
         </Select>
         
-        <Button onClick={handleAdd} aria-label="Add Task" className="bg-primary text-white ml-auto">
+        <Button 
+          onClick={handleAdd} 
+          aria-label="Add Task" 
+          className="bg-primary text-white ml-auto hover:bg-primary/90"
+          type="button"
+        >
           <Plus className="h-4 w-4 mr-2" /> Add Task
         </Button>
       </div>
