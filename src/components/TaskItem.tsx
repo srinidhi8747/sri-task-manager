@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 interface TaskItemProps {
   task: Task;
-  onEdit: (id: number, newTitle: string) => void;
+  onEdit: (id: number, newTitle: string, newDescription?: string) => void;
   onDelete: (id: number) => void;
   onStatusChange: (id: number) => void;
   isCompleted: boolean;
