@@ -33,7 +33,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
             end_date: endDate?.toISOString(),
             completed: false,
             created_by: "Current User",
-            priority
+            priority: priority // Ensure priority is of type Priority
           }
         ])
         .select()
@@ -52,7 +52,7 @@ const TaskManager = ({ tasks, onTasksChange, currentPage, onPageChange }: TaskMa
         createdAt: newTask.created_at,
         createdBy: newTask.created_by,
         completedAt: newTask.completed_at,
-        priority: newTask.priority
+        priority: newTask.priority as Priority // Type assertion to ensure it's a Priority
       };
 
       onTasksChange(prev => [formattedTask, ...prev]);
