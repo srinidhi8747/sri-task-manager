@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Task } from "@/types/task";
@@ -6,7 +5,6 @@ import TaskHeader from "@/components/TaskHeader";
 import TaskManager from "@/components/TaskManager";
 import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
-import { toast } from "@/hooks/use-toast";
 import SyncService from "@/services/syncService";
 
 const ITEMS_PER_PAGE = 10;
@@ -78,12 +76,6 @@ const Index = () => {
         setTasks(data.tasks);
         setLastSyncTime(data.timestamp);
       }
-    });
-
-    // Show feedback to the user
-    toast({
-      title: "Sync enabled",
-      description: "Your tasks will be synchronized across devices",
     });
     
     return () => {
