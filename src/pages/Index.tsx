@@ -9,46 +9,71 @@ import { exportTasksToExcel } from "@/utils/TaskExporter";
 
 const ITEMS_PER_PAGE = 10;
 const STORAGE_KEY = "tasks_v1"; // Using a versioned key
+const SYNC_INTERVAL = 5000; // Check for updates every 5 seconds
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
-  // Load tasks on mount
-  useEffect(() => {
-    const loadTasks = () => {
-      const savedTasks = localStorage.getItem(STORAGE_KEY);
-      if (savedTasks) {
-        try {
-          setTasks(JSON.parse(savedTasks));
-        } catch (e) {
-          console.error("Error parsing tasks from localStorage:", e);
-          // Reset to empty array if data is corrupted
-          setTasks([]);
+  // Function to load tasks from localStorage
+  const loadTasks = () => {
+    const savedTasks = localStorage.getItem(STORAGE_KEY);
+    if (savedTasks) {
+      try {
+        const parsedTasks = JSON.parse(savedTasks);
+        // Only update state if the data is actually different
+        if (JSON.stringify(parsedTasks) !== JSON.stringify(tasks)) {
+          setTasks(parsedTasks);
         }
+      } catch (e) {
+        console.error("Error parsing tasks from localStorage:", e);
+        // Reset to empty array if data is corrupted
+        setTasks([]);
       }
-    };
+    }
+  };
 
+  // Load tasks on mount and set up sync mechanisms
+  useEffect(() => {
     // Load tasks initially
     loadTasks();
+
+    // Set up periodic sync
+    const syncInterval = setInterval(() => {
+      loadTasks();
+    }, SYNC_INTERVAL);
+
+    // Sync when tab/window becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadTasks();
+      }
+    };
 
     // Add event listener for storage changes from other tabs/windows
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY && e.newValue) {
         try {
-          setTasks(JSON.parse(e.newValue));
+          const parsedTasks = JSON.parse(e.newValue);
+          setTasks(parsedTasks);
         } catch (err) {
           console.error("Error parsing tasks from storage event:", err);
         }
       }
     };
 
-    // Listen for changes from other tabs/windows
+    // Listen for changes
     window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', loadTasks);
 
+    // Clean up on unmount
     return () => {
+      clearInterval(syncInterval);
       window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', loadTasks);
     };
   }, []);
 
