@@ -9,7 +9,7 @@ import { exportTasksToExcel } from "@/utils/TaskExporter";
 
 const ITEMS_PER_PAGE = 10;
 const STORAGE_KEY = "tasks_v1"; // Using a versioned key
-const SYNC_INTERVAL = 5000; // Check for updates every 5 seconds
+const SYNC_INTERVAL = 3000; // Check more frequently (every 3 seconds)
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -22,8 +22,10 @@ const Index = () => {
     if (savedTasks) {
       try {
         const parsedTasks = JSON.parse(savedTasks);
+        
         // Only update state if the data is actually different
         if (JSON.stringify(parsedTasks) !== JSON.stringify(tasks)) {
+          console.log("Updating tasks from localStorage");
           setTasks(parsedTasks);
         }
       } catch (e) {
@@ -34,12 +36,21 @@ const Index = () => {
     }
   };
 
+  // Helper function to save tasks to localStorage
+  const saveTasks = (updatedTasks: Task[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTasks));
+    } catch (e) {
+      console.error("Error saving tasks to localStorage:", e);
+    }
+  };
+
   // Load tasks on mount and set up sync mechanisms
   useEffect(() => {
     // Load tasks initially
     loadTasks();
 
-    // Set up periodic sync
+    // Set up more frequent periodic sync
     const syncInterval = setInterval(() => {
       loadTasks();
     }, SYNC_INTERVAL);
@@ -47,6 +58,7 @@ const Index = () => {
     // Sync when tab/window becomes visible again
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        console.log("Document became visible, reloading tasks");
         loadTasks();
       }
     };
@@ -54,6 +66,7 @@ const Index = () => {
     // Add event listener for storage changes from other tabs/windows
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY && e.newValue) {
+        console.log("Storage changed in another tab/window");
         try {
           const parsedTasks = JSON.parse(e.newValue);
           setTasks(parsedTasks);
@@ -63,23 +76,40 @@ const Index = () => {
       }
     };
 
-    // Listen for changes
+    const handleFocus = () => {
+      console.log("Window focused, reloading tasks");
+      loadTasks();
+    };
+
+    const handlePageShow = () => {
+      console.log("Page shown (back navigation), reloading tasks");
+      loadTasks();
+    };
+
+    // Listen for various events that might indicate we need to refresh data
     window.addEventListener('storage', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', loadTasks);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('online', loadTasks);
 
     // Clean up on unmount
     return () => {
       clearInterval(syncInterval);
       window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', loadTasks);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('online', loadTasks);
     };
-  }, []);
+  }, []); // Removed tasks from dependency array to prevent unnecessary re-renders
 
   // Save tasks whenever they change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    if (tasks.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+      console.log("Saving tasks to localStorage");
+      saveTasks(tasks);
+    }
   }, [tasks]);
 
   const handleExport = async () => {
