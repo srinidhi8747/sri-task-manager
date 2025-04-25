@@ -3,20 +3,25 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types/task";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (user) {
+      fetchTasks();
+    }
+  }, [user]);
 
   const fetchTasks = async () => {
     try {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           completed: boolean
@@ -22,6 +40,7 @@ export type Database = {
           sequence: number
           start_date: string | null
           title: string
+          user_id: string | null
         }
         Insert: {
           completed?: boolean
@@ -35,6 +54,7 @@ export type Database = {
           sequence: number
           start_date?: string | null
           title: string
+          user_id?: string | null
         }
         Update: {
           completed?: boolean
@@ -48,6 +68,7 @@ export type Database = {
           sequence?: number
           start_date?: string | null
           title?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -67,6 +88,7 @@ export type Database = {
           start_date: string | null
           task_id: number
           title: string
+          user_id: string | null
         }
         Insert: {
           completed: boolean
@@ -83,6 +105,7 @@ export type Database = {
           start_date?: string | null
           task_id: number
           title: string
+          user_id?: string | null
         }
         Update: {
           completed?: boolean
@@ -99,6 +122,7 @@ export type Database = {
           start_date?: string | null
           task_id?: number
           title?: string
+          user_id?: string | null
         }
         Relationships: []
       }
