@@ -46,7 +46,10 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/pending" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/completed" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/history" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/" element={<Navigate to="/pending" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

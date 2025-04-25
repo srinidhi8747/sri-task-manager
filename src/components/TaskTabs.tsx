@@ -4,6 +4,7 @@ import { Task } from "@/types/task";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface TaskTabsProps {
   tasks: Task[];
@@ -26,17 +27,38 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
   onStatusChange,
   onAdd
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
+  const historyTasks = tasks.filter(task => task.completedAt); // Assuming you want to track completed task history
+
+  // Determine the current tab based on the route
+  const getCurrentTab = () => {
+    switch (location.pathname) {
+      case '/pending': return 'pending';
+      case '/completed': return 'completed';
+      case '/history': return 'history';
+      default: return 'pending';
+    }
+  };
 
   return (
-    <Tabs defaultValue="pending" className="w-full">
+    <Tabs 
+      value={getCurrentTab()} 
+      onValueChange={(tab) => navigate(`/${tab}`)} 
+      className="w-full"
+    >
       <TabsList className="mb-4 w-full">
         <TabsTrigger value="pending" className="flex-1">
           Pending Tasks ({pendingTasks.length})
         </TabsTrigger>
         <TabsTrigger value="completed" className="flex-1">
           Completed Tasks ({completedTasks.length})
+        </TabsTrigger>
+        <TabsTrigger value="history" className="flex-1">
+          Task History ({historyTasks.length})
         </TabsTrigger>
       </TabsList>
       
@@ -54,6 +76,16 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
       <TabsContent value="completed">
         <TaskList 
           tasks={completedTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onStatusChange={onStatusChange}
+          isCompleted={true}
+        />
+      </TabsContent>
+
+      <TabsContent value="history">
+        <TaskList 
+          tasks={historyTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
           onEdit={onEdit}
           onDelete={onDelete}
           onStatusChange={onStatusChange}
