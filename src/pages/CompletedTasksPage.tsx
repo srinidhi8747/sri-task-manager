@@ -17,8 +17,8 @@ const CompletedTasksPage = () => {
   const { tasks, setTasks, isLoading } = useTasks();
   const { editTask, deleteTask, toggleTaskStatus } = useTaskManager(tasks, setTasks);
 
-  // Filter for completed tasks only (tasks that have completed flag but no deletedAt)
-  const completedTasks = tasks.filter(task => task.completed && !task.completedAt);
+  // Fix: Filter for completed tasks only (tasks that have completed=true)
+  const completedTasks = tasks.filter(task => task.completed);
 
   const handleExport = async () => {
     await exportTasksToExcel([], completedTasks);
