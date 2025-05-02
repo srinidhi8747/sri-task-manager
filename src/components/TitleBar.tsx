@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Layout } from 'lucide-react';
+import { Layout, Menu } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -49,7 +49,7 @@ const TitleBar = () => {
     <div className="w-full bg-gradient-to-r from-[#9b87f5] to-[#8a74e8] p-4 shadow-md">
       <div className="flex flex-col md:flex-row justify-between items-center">
         <div className="flex items-center">
-          <SidebarTrigger className="mr-3 md:hidden text-white hover:bg-[#9077ec] hover:text-white" />
+          <SidebarTrigger className="mr-3 md:hidden bg-white/20 text-white hover:bg-white/30 rounded-md p-1.5" />
           <div className="flex items-center">
             <Layout className="h-7 w-7 text-white bg-white/20 p-1 rounded-md mr-2" />
             <h1 className="text-2xl font-bold text-white">Mini Task Hub</h1>
@@ -63,6 +63,6 @@ const TitleBar = () => {
       </div>
     </div>
   );
-};
+}
 
 export default TitleBar;

@@ -28,7 +28,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <div className="flex items-center justify-between px-3 py-2 md:hidden">
             <span className="font-semibold text-sidebar-foreground">Task Hub</span>
-            <SidebarTrigger>
+            <SidebarTrigger className="p-1 rounded-md hover:bg-sidebar-accent text-sidebar-foreground">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
           </div>
