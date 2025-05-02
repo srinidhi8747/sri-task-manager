@@ -31,11 +31,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full flex-col">
+      <div className="flex flex-col h-screen">
         <TitleBar />
-        <div className="flex flex-1 w-full">
+        <div className="flex flex-1 overflow-hidden">
           <AppSidebar />
-          <main className="flex-1 p-4 md:p-6">{children}</main>
+          <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
         </div>
       </div>
     </SidebarProvider>

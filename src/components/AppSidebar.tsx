@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon, Menu } from 'lucide-react';
+import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 
 export function AppSidebar() {
@@ -26,12 +25,6 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <div className="flex items-center justify-between px-3 py-2 md:hidden">
-            <span className="font-medium text-lg text-sidebar-foreground">Menu</span>
-            <SidebarTrigger className="bg-sidebar-accent/60 hover:bg-sidebar-accent text-sidebar-foreground rounded-md p-1.5 transition-colors">
-              <Menu className="h-5 w-5" />
-            </SidebarTrigger>
-          </div>
           <SidebarGroupLabel>Tasks</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
