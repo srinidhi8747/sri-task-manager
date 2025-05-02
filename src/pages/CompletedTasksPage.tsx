@@ -6,7 +6,8 @@ import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
 import { useTasks } from "@/hooks/use-tasks";
 import TitleBar from "@/components/TitleBar";
-import TaskManager from "@/components/TaskManager";
+import TaskList from "@/components/TaskList";
+import { useTaskManager } from "@/hooks/use-task-manager";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -14,6 +15,7 @@ const CompletedTasksPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
   const { tasks, setTasks, isLoading } = useTasks();
+  const { editTask, deleteTask, toggleTaskStatus } = useTaskManager(tasks, setTasks);
 
   // Filter for completed tasks only (tasks that have completed flag but no deletedAt)
   const completedTasks = tasks.filter(task => task.completed && !task.completedAt);
@@ -41,11 +43,11 @@ const CompletedTasksPage = () => {
         
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4 text-gray-700">Completed Tasks</h2>
-          <TaskManager
+          <TaskList 
             tasks={completedTasks}
-            onTasksChange={setTasks}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            onEdit={editTask}
+            onDelete={deleteTask}
+            onStatusChange={toggleTaskStatus}
             isCompleted={true}
           />
         </div>

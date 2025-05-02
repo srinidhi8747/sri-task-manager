@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon } from 'lucide-react';
+import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
@@ -28,7 +28,9 @@ export function AppSidebar() {
         <SidebarGroup>
           <div className="flex items-center justify-between px-3 py-2 md:hidden">
             <span className="font-semibold text-sidebar-foreground">Task Hub</span>
-            <SidebarTrigger />
+            <SidebarTrigger>
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
           </div>
           <SidebarGroupLabel>Tasks</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -38,6 +40,7 @@ export function AppSidebar() {
                   tooltip="Pending Tasks" 
                   onClick={() => navigate('/pending')} 
                   isActive={location.pathname === '/pending'}
+                  className="w-full justify-start"
                 >
                   <ClipboardList className="h-4 w-4" />
                   <span>Pending Tasks</span>
@@ -48,6 +51,7 @@ export function AppSidebar() {
                   tooltip="Completed Tasks" 
                   onClick={() => navigate('/completed')} 
                   isActive={location.pathname === '/completed'}
+                  className="w-full justify-start"
                 >
                   <CheckSquare className="h-4 w-4" />
                   <span>Completed Tasks</span>
@@ -58,6 +62,7 @@ export function AppSidebar() {
                   tooltip="History" 
                   onClick={() => navigate('/history')} 
                   isActive={location.pathname === '/history'}
+                  className="w-full justify-start"
                 >
                   <History className="h-4 w-4" />
                   <span>History</span>
