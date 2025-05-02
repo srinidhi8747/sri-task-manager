@@ -65,7 +65,7 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
       <TabsContent value="pending">
         <TaskInput onAdd={onAdd} isCompleted={false} />
         <TaskList 
-          tasks={pendingTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
+          tasks={pendingTasks}
           onEdit={onEdit}
           onDelete={onDelete}
           onStatusChange={onStatusChange}
@@ -75,7 +75,7 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
       
       <TabsContent value="completed">
         <TaskList 
-          tasks={completedTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
+          tasks={completedTasks}
           onEdit={onEdit}
           onDelete={onDelete}
           onStatusChange={onStatusChange}
@@ -85,7 +85,7 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
 
       <TabsContent value="history">
         <TaskList 
-          tasks={historyTasks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)}
+          tasks={historyTasks}
           onEdit={onEdit}
           onDelete={onDelete}
           onStatusChange={onStatusChange}

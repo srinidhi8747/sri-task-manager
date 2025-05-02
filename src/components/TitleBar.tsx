@@ -36,7 +36,7 @@ const TitleBar = () => {
         <h1 className="text-2xl font-bold text-white">Mini Task Hub</h1>
         {profile && (
           <div className="text-white mt-2 md:mt-0">
-            Welcome, <span className="font-semibold">{profile.username || user?.email?.split('@')[0]}</span>
+            Welcome, <span className="font-semibold">{profile.username}</span>
           </div>
         )}
       </div>

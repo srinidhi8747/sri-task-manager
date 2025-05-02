@@ -7,6 +7,7 @@ import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
 import { useTasks } from "@/hooks/use-tasks";
 import TitleBar from "@/components/TitleBar";
+import { useLocation } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -14,12 +15,29 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
   const { tasks, setTasks, isLoading } = useTasks();
+  const location = useLocation();
 
   const handleExport = async () => {
     const pendingTasks = tasks.filter(task => !task.completed);
     const completedTasks = tasks.filter(task => task.completed);
     await exportTasksToExcel(pendingTasks, completedTasks);
   };
+  
+  // Get tasks based on current route
+  const getVisibleTasks = () => {
+    switch (location.pathname) {
+      case '/pending':
+        return tasks.filter(task => !task.completed);
+      case '/completed':
+        return tasks.filter(task => task.completed);
+      case '/history':
+        return tasks.filter(task => task.completedAt);
+      default:
+        return tasks.filter(task => !task.completed);
+    }
+  };
+
+  const visibleTasks = getVisibleTasks();
 
   if (isLoading) {
     return (
@@ -45,7 +63,7 @@ const Index = () => {
         />
         <TaskPagination 
           currentPage={currentPage}
-          totalPages={Math.ceil(tasks.length / ITEMS_PER_PAGE)}
+          totalPages={Math.ceil(visibleTasks.length / ITEMS_PER_PAGE)}
           onPageChange={setCurrentPage}
         />
       </div>
