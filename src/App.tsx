@@ -9,7 +9,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import Index from "./pages/Index";
+import PendingTasksPage from "./pages/PendingTasksPage";
+import CompletedTasksPage from "./pages/CompletedTasksPage";
+import HistoryTasksPage from "./pages/HistoryTasksPage";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -46,9 +48,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/pending" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/completed" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/pending" element={<ProtectedRoute><PendingTasksPage /></ProtectedRoute>} />
+              <Route path="/completed" element={<ProtectedRoute><CompletedTasksPage /></ProtectedRoute>} />
+              <Route path="/history" element={<ProtectedRoute><HistoryTasksPage /></ProtectedRoute>} />
               <Route path="/" element={<Navigate to="/pending" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

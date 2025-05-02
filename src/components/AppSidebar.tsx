@@ -1,6 +1,6 @@
 
-import { useNavigate } from 'react-router-dom';
-import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
@@ -13,10 +13,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 
 export function AppSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -24,23 +26,39 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
+          <div className="flex items-center justify-between px-3 py-2 md:hidden">
+            <span className="font-semibold text-sidebar-foreground">Task Hub</span>
+            <SidebarTrigger />
+          </div>
           <SidebarGroupLabel>Tasks</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Pending Task" onClick={() => navigate('/pending')}>
+                <SidebarMenuButton 
+                  tooltip="Pending Tasks" 
+                  onClick={() => navigate('/pending')} 
+                  isActive={location.pathname === '/pending'}
+                >
                   <ClipboardList className="h-4 w-4" />
-                  <span>Pending Task</span>
+                  <span>Pending Tasks</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Completed Tasks" onClick={() => navigate('/completed')}>
+                <SidebarMenuButton 
+                  tooltip="Completed Tasks" 
+                  onClick={() => navigate('/completed')} 
+                  isActive={location.pathname === '/completed'}
+                >
                   <CheckSquare className="h-4 w-4" />
                   <span>Completed Tasks</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="History" onClick={() => navigate('/history')}>
+                <SidebarMenuButton 
+                  tooltip="History" 
+                  onClick={() => navigate('/history')} 
+                  isActive={location.pathname === '/history'}
+                >
                   <History className="h-4 w-4" />
                   <span>History</span>
                 </SidebarMenuButton>

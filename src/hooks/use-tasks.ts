@@ -13,11 +13,16 @@ export const useTasks = () => {
   useEffect(() => {
     if (user) {
       fetchTasks();
+    } else {
+      setTasks([]);
+      setIsLoading(false);
     }
   }, [user]);
 
   const fetchTasks = async () => {
     try {
+      setIsLoading(true);
+      
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
@@ -41,6 +46,7 @@ export const useTasks = () => {
       }));
 
       setTasks(formattedTasks);
+      console.log('Tasks fetched:', formattedTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast({ 
@@ -53,7 +59,7 @@ export const useTasks = () => {
     }
   };
 
-  const updateTasksState = (newTasks: Task[]) => {
+  const updateTasksState = (newTasks: Task[] | ((prev: Task[]) => Task[])) => {
     setTasks(newTasks);
   };
 

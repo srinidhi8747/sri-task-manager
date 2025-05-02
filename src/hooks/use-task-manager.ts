@@ -1,14 +1,25 @@
-
 import { Task, Priority } from "@/types/task";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useTaskManager = (
   tasks: Task[],
   onTasksChange: (tasks: Task[] | ((prev: Task[]) => Task[])) => void
 ) => {
+  const { user } = useAuth();
+
   const addTask = async (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: Priority) => {
     try {
+      if (!user) {
+        toast({ 
+          title: "Authentication required", 
+          description: "Please log in to add tasks.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const pendingTasks = tasks.filter(t => !t.completed);
       const sequence = pendingTasks.length + 1;
       
@@ -21,8 +32,9 @@ export const useTaskManager = (
           start_date: startDate?.toISOString(),
           end_date: endDate?.toISOString(),
           completed: false,
-          created_by: "Current User",
-          priority: priority
+          created_by: user?.user_metadata?.username || user.email?.split('@')[0] || "Current User",
+          priority: priority,
+          user_id: user.id
         }])
         .select()
         .single();
@@ -63,7 +75,8 @@ export const useTaskManager = (
           title: newTitle,
           description: newDescription 
         })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
@@ -92,7 +105,8 @@ export const useTaskManager = (
       const { error } = await supabase
         .from('tasks')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
@@ -139,7 +153,8 @@ export const useTaskManager = (
           completed: newStatus,
           completed_at: newStatus ? new Date().toISOString() : null
         })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
