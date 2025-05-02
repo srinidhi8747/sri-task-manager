@@ -28,9 +28,9 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Pending Tasks" onClick={() => navigate('/')}>
+                <SidebarMenuButton tooltip="Pending Task" onClick={() => navigate('/pending')}>
                   <ClipboardList className="h-4 w-4" />
-                  <span>Pending Tasks</span>
+                  <span>Pending Task</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

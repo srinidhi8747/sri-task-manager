@@ -6,6 +6,7 @@ import TaskManager from "@/components/TaskManager";
 import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
 import { useTasks } from "@/hooks/use-tasks";
+import TitleBar from "@/components/TitleBar";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,7 +24,8 @@ const Index = () => {
   if (isLoading) {
     return (
       <main className="min-h-screen bg-[#F1F0FB] p-4">
-        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg">
+        <TitleBar />
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg mt-4">
           Loading tasks...
         </div>
       </main>
@@ -31,8 +33,9 @@ const Index = () => {
   }
 
   return (
-    <main className={`min-h-screen bg-[#F1F0FB] ${isMobile ? 'p-4' : 'px-6 py-8'}`}>
-      <div className={`w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-100`}>
+    <main className={`min-h-screen bg-[#F1F0FB]`}>
+      <TitleBar />
+      <div className={`w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-100 ${isMobile ? 'mt-4 mx-4' : 'mt-6 mx-6'}`}>
         <TaskHeader onExport={handleExport} />
         <TaskManager 
           tasks={tasks}

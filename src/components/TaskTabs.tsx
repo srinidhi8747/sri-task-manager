@@ -52,13 +52,13 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
     >
       <TabsList className="mb-4 w-full">
         <TabsTrigger value="pending" className="flex-1">
-          Pending Tasks ({pendingTasks.length})
+          Pending Task ({pendingTasks.length})
         </TabsTrigger>
         <TabsTrigger value="completed" className="flex-1">
           Completed Tasks ({completedTasks.length})
         </TabsTrigger>
         <TabsTrigger value="history" className="flex-1">
-          Task History ({historyTasks.length})
+          History ({historyTasks.length})
         </TabsTrigger>
       </TabsList>
       
