@@ -75,13 +75,21 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} onClick={toggleTheme}>
+            <SidebarMenuButton 
+              tooltip={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} 
+              onClick={toggleTheme}
+              className="w-full justify-start border border-sidebar-border hover:bg-sidebar-accent"
+            >
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               <span>Toggle Theme</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Sign Out" onClick={signOut}>
+            <SidebarMenuButton 
+              tooltip="Sign Out" 
+              onClick={signOut}
+              className="w-full justify-start"
+            >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
             </SidebarMenuButton>
