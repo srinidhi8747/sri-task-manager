@@ -4,24 +4,19 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import TaskHeader from "@/components/TaskHeader";
 import TaskPagination from "@/components/TaskPagination";
 import { exportTasksToExcel } from "@/utils/TaskExporter";
-import { useTasks } from "@/hooks/use-tasks";
 import TitleBar from "@/components/TitleBar";
-import TaskList from "@/components/TaskList";
-import { useTaskManager } from "@/hooks/use-task-manager";
+import { useTaskHistory } from "@/hooks/use-task-history";
+import TaskHistoryList from "@/components/TaskHistoryList";
 
 const ITEMS_PER_PAGE = 10;
 
 const HistoryTasksPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
-  const { tasks, setTasks, isLoading } = useTasks();
-  const { editTask, deleteTask, toggleTaskStatus } = useTaskManager(tasks, setTasks);
-
-  // Filter for history tasks only (tasks that have a completedAt value)
-  const historyTasks = tasks.filter(task => task.completedAt);
+  const { deletedTasks, isLoading } = useTaskHistory();
 
   const handleExport = async () => {
-    await exportTasksToExcel([], historyTasks);
+    await exportTasksToExcel([], deletedTasks);
   };
 
   if (isLoading) {
@@ -42,19 +37,13 @@ const HistoryTasksPage = () => {
         <TaskHeader onExport={handleExport} />
         
         <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-700">Task History</h2>
-          <TaskList 
-            tasks={historyTasks}
-            onEdit={editTask}
-            onDelete={deleteTask}
-            onStatusChange={toggleTaskStatus}
-            isCompleted={true}
-          />
+          <h2 className="text-xl font-bold mb-4 text-gray-700">Task History (Deleted)</h2>
+          <TaskHistoryList deletedTasks={deletedTasks} />
         </div>
         
         <TaskPagination 
           currentPage={currentPage}
-          totalPages={Math.ceil(historyTasks.length / ITEMS_PER_PAGE)}
+          totalPages={Math.ceil(deletedTasks.length / ITEMS_PER_PAGE)}
           onPageChange={setCurrentPage}
         />
       </div>

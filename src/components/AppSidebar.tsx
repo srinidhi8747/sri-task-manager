@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon, Menu } from 'lucide-react';
+import { ClipboardList, CheckSquare, History, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
