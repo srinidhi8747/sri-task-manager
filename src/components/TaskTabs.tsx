@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Task } from "@/types/task";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -28,10 +28,10 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // These filtered tasks are only used for counting
-  const pendingTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
-  const historyTasks = tasks.filter(task => task.completedAt);
+  // These are used just for counting badges
+  const pendingTasksCount = tasks.filter(task => !task.completed).length;
+  const completedTasksCount = tasks.filter(task => task.completed).length;
+  const historyTasksCount = tasks.filter(task => task.completedAt).length;
 
   // Determine the current tab based on the route
   const getCurrentTab = () => {
@@ -92,13 +92,13 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
     >
       <TabsList className="mb-4 w-full">
         <TabsTrigger value="pending" className="flex-1">
-          Pending Task ({pendingTasks.length})
+          Pending Task ({pendingTasksCount})
         </TabsTrigger>
         <TabsTrigger value="completed" className="flex-1">
-          Completed Tasks ({completedTasks.length})
+          Completed Tasks ({completedTasksCount})
         </TabsTrigger>
         <TabsTrigger value="history" className="flex-1">
-          History ({historyTasks.length})
+          History ({historyTasksCount})
         </TabsTrigger>
       </TabsList>
       
