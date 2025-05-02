@@ -56,7 +56,7 @@ const Index = () => {
       <div className={`w-full max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-100 ${isMobile ? 'mt-4 mx-4' : 'mt-6 mx-6'}`}>
         <TaskHeader onExport={handleExport} />
         <TaskManager 
-          tasks={tasks}
+          tasks={visibleTasks}
           onTasksChange={setTasks}
           currentPage={currentPage}
           onPageChange={setCurrentPage}

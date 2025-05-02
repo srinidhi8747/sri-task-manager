@@ -16,8 +16,6 @@ interface TaskTabsProps {
   onAdd: (title: string, description: string, startDate: Date | null, endDate: Date | null, priority: 'low' | 'medium' | 'high') => void;
 }
 
-const ITEMS_PER_PAGE = 5;
-
 const TaskTabs: React.FC<TaskTabsProps> = ({
   tasks,
   currentPage,
@@ -30,9 +28,10 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  // These filtered tasks are only used for counting
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
-  const historyTasks = tasks.filter(task => task.completedAt); // Assuming you want to track completed task history
+  const historyTasks = tasks.filter(task => task.completedAt);
 
   // Determine the current tab based on the route
   const getCurrentTab = () => {
@@ -41,6 +40,47 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
       case '/completed': return 'completed';
       case '/history': return 'history';
       default: return 'pending';
+    }
+  };
+
+  // Only show the tab content corresponding to the current route
+  const renderTabContent = () => {
+    switch (location.pathname) {
+      case '/pending':
+        return (
+          <>
+            <TaskInput onAdd={onAdd} isCompleted={false} />
+            <TaskList 
+              tasks={tasks}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onStatusChange={onStatusChange}
+              isCompleted={false}
+            />
+          </>
+        );
+      case '/completed':
+        return (
+          <TaskList 
+            tasks={tasks}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
+            isCompleted={true}
+          />
+        );
+      case '/history':
+        return (
+          <TaskList 
+            tasks={tasks}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
+            isCompleted={true}
+          />
+        );
+      default:
+        return null;
     }
   };
 
@@ -62,36 +102,9 @@ const TaskTabs: React.FC<TaskTabsProps> = ({
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="pending">
-        <TaskInput onAdd={onAdd} isCompleted={false} />
-        <TaskList 
-          tasks={pendingTasks}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
-          isCompleted={false}
-        />
-      </TabsContent>
-      
-      <TabsContent value="completed">
-        <TaskList 
-          tasks={completedTasks}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
-          isCompleted={true}
-        />
-      </TabsContent>
-
-      <TabsContent value="history">
-        <TaskList 
-          tasks={historyTasks}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
-          isCompleted={true}
-        />
-      </TabsContent>
+      <div className="mt-4">
+        {renderTabContent()}
+      </div>
     </Tabs>
   );
 };
