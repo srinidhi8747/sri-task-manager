@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TaskHeader from "@/components/TaskHeader";
 import TaskPagination from "@/components/TaskPagination";
@@ -10,7 +10,7 @@ import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
 import { useTaskManager } from "@/hooks/use-task-manager";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5; // Changed to 5 items per page
 
 const PendingTasksPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,6 +20,37 @@ const PendingTasksPage = () => {
 
   // Filter for pending tasks only
   const pendingTasks = tasks.filter(task => !task.completed);
+  
+  // Update the sequence numbers in ascending order (1, 2, 3...)
+  useEffect(() => {
+    if (!isLoading && pendingTasks.length > 0) {
+      const tasksWithFixedSequence = pendingTasks.map((task, index) => ({
+        ...task,
+        sequence: index + 1
+      }));
+      
+      // Only update if sequences are different
+      const needsUpdate = tasksWithFixedSequence.some(
+        (task, i) => task.sequence !== pendingTasks[i].sequence
+      );
+      
+      if (needsUpdate) {
+        setTasks(current => 
+          current.map(task => {
+            if (!task.completed) {
+              const updatedTask = tasksWithFixedSequence.find(t => t.id === task.id);
+              return updatedTask || task;
+            }
+            return task;
+          })
+        );
+      }
+    }
+  }, [pendingTasks, isLoading, setTasks]);
+
+  // Get paginated tasks for current page
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedTasks = pendingTasks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleExport = async () => {
     await exportTasksToExcel(pendingTasks, []);
@@ -46,7 +77,7 @@ const PendingTasksPage = () => {
           <h2 className="text-xl font-bold mb-4 text-gray-700">Pending Tasks</h2>
           <TaskInput onAdd={addTask} isCompleted={false} />
           <TaskList 
-            tasks={pendingTasks}
+            tasks={paginatedTasks}
             onEdit={editTask}
             onDelete={deleteTask}
             onStatusChange={toggleTaskStatus}
