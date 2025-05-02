@@ -27,8 +27,8 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <div className="flex items-center justify-between px-3 py-2 md:hidden">
-            <span className="font-semibold text-sidebar-foreground">Task Hub</span>
-            <SidebarTrigger className="p-1 rounded-md hover:bg-sidebar-accent text-sidebar-foreground">
+            <span className="font-medium text-lg text-sidebar-foreground">Menu</span>
+            <SidebarTrigger className="bg-sidebar-accent/60 hover:bg-sidebar-accent text-sidebar-foreground rounded-md p-1.5 transition-colors">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
           </div>
@@ -78,7 +78,7 @@ export function AppSidebar() {
             <SidebarMenuButton 
               tooltip={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} 
               onClick={toggleTheme}
-              className="w-full justify-start border border-sidebar-border hover:bg-sidebar-accent"
+              className="w-full justify-start border border-sidebar-border/50 hover:bg-sidebar-accent"
             >
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               <span>Toggle Theme</span>

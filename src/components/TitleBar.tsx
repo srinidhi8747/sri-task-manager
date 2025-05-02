@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Layout, Menu } from 'lucide-react';
+import { Layout } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -46,18 +46,20 @@ const TitleBar = () => {
   }, [user]);
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#9b87f5] to-[#8a74e8] p-4 shadow-md">
-      <div className="flex flex-col md:flex-row justify-between items-center">
-        <div className="flex items-center">
-          <SidebarTrigger className="mr-3 md:hidden bg-white/20 text-white hover:bg-white/30 rounded-md p-1.5" />
-          <div className="flex items-center">
-            <Layout className="h-7 w-7 text-white bg-white/20 p-1 rounded-md mr-2" />
-            <h1 className="text-2xl font-bold text-white">Mini Task Hub</h1>
+    <div className="w-full bg-gradient-to-r from-[#9b87f5] to-[#8a74e8] px-4 py-3 shadow-md">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="md:hidden bg-white/20 hover:bg-white/30 text-white rounded-md p-1.5 transition-colors" />
+          <div className="flex items-center gap-2">
+            <div className="bg-white/20 p-1.5 rounded-md">
+              <Layout className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-white">Mini Task Hub</h1>
           </div>
         </div>
         {profile && (
-          <div className="text-white mt-2 md:mt-0">
-            Welcome, <span className="font-semibold">{profile.username}</span>
+          <div className="text-white/90 text-sm md:text-base">
+            Welcome, <span className="font-medium">{profile.username}</span>
           </div>
         )}
       </div>
