@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Task } from "@/types/task";
-import TaskTabs from "@/components/TaskTabs";
+import TaskList from "@/components/TaskList";
 import { useTaskManager } from "@/hooks/use-task-manager";
 
 interface TaskManagerProps {
@@ -9,25 +9,25 @@ interface TaskManagerProps {
   onTasksChange: (tasks: Task[] | ((prev: Task[]) => Task[])) => void;
   currentPage: number;
   onPageChange: (page: number) => void;
+  isCompleted?: boolean;
 }
 
 const TaskManager: React.FC<TaskManagerProps> = ({ 
   tasks, 
   onTasksChange, 
   currentPage, 
-  onPageChange 
+  onPageChange,
+  isCompleted = false
 }) => {
   const { addTask, editTask, deleteTask, toggleTaskStatus } = useTaskManager(tasks, onTasksChange);
 
   return (
-    <TaskTabs
+    <TaskList
       tasks={tasks}
-      currentPage={currentPage}
-      onTasksChange={onTasksChange}
       onEdit={editTask}
       onDelete={deleteTask}
       onStatusChange={toggleTaskStatus}
-      onAdd={addTask}
+      isCompleted={isCompleted}
     />
   );
 };
